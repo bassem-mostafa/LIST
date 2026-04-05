@@ -318,7 +318,7 @@ LIST_Status_t LIST_PushAfter( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t * 
         }
 
         LIST_Node_t * Target = LISTx->Head;
-        while ( Target != Node )
+        while ( ( Target != NULL ) && ( Target != Node ) )
         {
             Target = Target->Next;
         }
@@ -364,7 +364,7 @@ LIST_Status_t LIST_PushBefore( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t *
         }
 
         LIST_Node_t * Target = LISTx->Head;
-        while ( Target != Node )
+        while ( ( Target != NULL ) && ( Target != Node ) )
         {
             Target = Target->Next;
         }
@@ -410,7 +410,7 @@ LIST_Status_t LIST_Remove( LIST_t * LISTx, LIST_Node_t * Node )
         }
 
         LIST_Node_t * Target = LISTx->Head;
-        while ( Target != Node )
+        while ( ( Target != NULL ) && ( Target != Node ) )
         {
             Target = Target->Next;
         }
@@ -542,7 +542,7 @@ LIST_Status_t LIST_PeekPrevious( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t
 // #### Public Variable(s) #####################################################
 // #############################################################################
 
-const char LIST_VERSION[] = "0.0.0.v20260405-1156";
+const char LIST_VERSION[] = "0.0.0.v20260406-0117";
 
 // #############################################################################
 // #### File Guard #############################################################
