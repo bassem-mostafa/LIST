@@ -436,6 +436,16 @@ LIST_Status_t LIST_Remove( LIST_t * LISTx, LIST_Node_t * Node )
 
         Target->Next = NULL;
         Target->Previous = NULL;
+
+        if ( Target == LISTx->Head )
+        {
+            LISTx->Head = Next;
+        }
+
+        if ( Target == LISTx->Tail )
+        {
+            LISTx->Tail = Previous;
+        }
     }
     while ( 0 );
 
@@ -542,7 +552,7 @@ LIST_Status_t LIST_PeekPrevious( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t
 // #### Public Variable(s) #####################################################
 // #############################################################################
 
-const char LIST_VERSION[] = "0.0.0.v20260815-2008";
+const char LIST_VERSION[] = "0.0.0.v20261024-1438";
 
 // #############################################################################
 // #### File Guard #############################################################
