@@ -129,28 +129,31 @@ LIST_Status_t LIST_PushBack( LIST_t * LISTx, LIST_Node_t * Node )
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
+        if ( LIST_Remove( LISTx, Node ) == LIST_Status_Success )
         {
-            Status = LIST_Status_Error;
-            break;
+            // @note Node was already in the list and has been removed to be pushed into the right place
         }
 
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Tail == NULL ) )
+        LIST_Node_t * Tail = LISTx->Tail;
+        LIST_Node_t * Next = Tail ? Tail->Next : NULL;
+
+        if ( Next != NULL )
+        {
+            Next->Previous = Node;
+        }
+
+        if ( Tail != NULL )
+        {
+            Tail->Next = Node;
+        }
+
+        Node->Next = Next;
+        Node->Previous = Tail;
+        LISTx->Tail = Node;
+
+        if ( LISTx->Head == NULL )
         {
             LISTx->Head = Node;
-            LISTx->Tail = Node;
-
-            Node->Next = NULL;
-            Node->Previous = NULL;
-        }
-        else
-        {
-            Node->Previous = LISTx->Tail;
-
-            Node->Next = LISTx->Tail->Next;
-            LISTx->Tail->Next = Node;
-
-            LISTx->Tail = Node;
         }
     }
     while ( 0 );
@@ -170,35 +173,37 @@ LIST_Status_t LIST_PullBack( LIST_t * LISTx, LIST_Node_t ** Node )
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
-        {
-            Status = LIST_Status_Error;
-            break;
-        }
-
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Tail == NULL ) )
+        if ( LISTx->Tail == NULL )
         {
             Status = LIST_Status_Empty;
             break;
         }
 
-        LIST_Node_t * Target = LISTx->Tail;
+        LIST_Node_t * Tail = LISTx->Tail;
+        LIST_Node_t * Next = Tail ? Tail->Next : NULL;
+        LIST_Node_t * Previous = Tail ? Tail->Previous : NULL;
 
-        if ( LISTx->Head == LISTx->Tail )
+        if ( Next != NULL )
         {
-            LISTx->Head = NULL;
-            LISTx->Tail = NULL;
-        }
-        else
-        {
-            LISTx->Tail = Target->Previous;
-            LISTx->Tail->Next = Target->Next;
-
-            Target->Previous = NULL;
-            Target->Next = NULL;
+            Next->Previous = Previous;
         }
 
-        *Node = Target;
+        if ( Previous != NULL )
+        {
+            Previous->Next = Next;
+        }
+
+        LISTx->Tail = Previous;
+
+        if ( LISTx->Head == Tail )
+        {
+            LISTx->Head = Previous;
+        }
+
+        Tail->Next = NULL;
+        Tail->Previous = NULL;
+
+        *Node = Tail;
     }
     while ( 0 );
 
@@ -217,28 +222,31 @@ LIST_Status_t LIST_PushFront( LIST_t * LISTx, LIST_Node_t * Node )
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
+        if ( LIST_Remove( LISTx, Node ) == LIST_Status_Success )
         {
-            Status = LIST_Status_Error;
-            break;
+            // @note Node was already in the list and has been removed to be pushed into the right place
         }
 
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Head == NULL ) )
+        LIST_Node_t * Head = LISTx->Head;
+        LIST_Node_t * Previous = Head ? Head->Previous : NULL;
+
+        if ( Head != NULL )
         {
-            LISTx->Head = Node;
+            Head->Previous = Node;
+        }
+
+        if ( Previous != NULL )
+        {
+            Previous->Next = Node;
+        }
+
+        Node->Next = Head;
+        Node->Previous = Previous;
+        LISTx->Head = Node;
+
+        if ( LISTx->Tail == NULL )
+        {
             LISTx->Tail = Node;
-
-            Node->Next = NULL;
-            Node->Previous = NULL;
-        }
-        else
-        {
-            Node->Next = LISTx->Head;
-
-            Node->Previous = LISTx->Head->Previous;
-            LISTx->Head->Previous = Node;
-
-            LISTx->Head = Node;
         }
     }
     while ( 0 );
@@ -258,35 +266,37 @@ LIST_Status_t LIST_PullFront( LIST_t * LISTx, LIST_Node_t ** Node )
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
-        {
-            Status = LIST_Status_Error;
-            break;
-        }
-
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Head == NULL ) )
+        if ( LISTx->Head == NULL )
         {
             Status = LIST_Status_Empty;
             break;
         }
 
-        LIST_Node_t * Target = LISTx->Head;
+        LIST_Node_t * Head = LISTx->Head;
+        LIST_Node_t * Next = Head ? Head->Next : NULL;
+        LIST_Node_t * Previous = Head ? Head->Previous : NULL;
 
-        if ( LISTx->Head == LISTx->Tail )
+        if ( Next != NULL )
         {
-            LISTx->Head = NULL;
-            LISTx->Tail = NULL;
-        }
-        else
-        {
-            LISTx->Head = Target->Next;
-            LISTx->Head->Previous = Target->Previous;
-
-            Target->Previous = NULL;
-            Target->Next = NULL;
+            Next->Previous = Previous;
         }
 
-        *Node = Target;
+        if ( Previous != NULL )
+        {
+            Previous->Next = Next;
+        }
+
+        LISTx->Head = Next;
+
+        if ( LISTx->Tail == Head )
+        {
+            LISTx->Tail = Next;
+        }
+
+        Head->Next = NULL;
+        Head->Previous = NULL;
+
+        *Node = Head;
     }
     while ( 0 );
 
@@ -299,22 +309,15 @@ LIST_Status_t LIST_PushAfter( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t * 
 
     do
     {
-        if ( LISTx == NULL || Node == NULL || New == NULL )
+        if ( LISTx == NULL || Node == NULL || New == NULL || Node == New )
         {
             Status = LIST_Status_ArgumentInvalid;
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
+        if ( LIST_Remove( LISTx, New ) == LIST_Status_Success )
         {
-            Status = LIST_Status_Error;
-            break;
-        }
-
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Head == NULL ) )
-        {
-            Status = LIST_Status_Empty;
-            break;
+            // @note New was already in the list and has been removed to be pushed into the right place
         }
 
         LIST_Node_t * Target = LISTx->Head;
@@ -333,6 +336,11 @@ LIST_Status_t LIST_PushAfter( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t * 
         New->Next = Target->Next;
 
         Target->Next = New;
+
+        if ( Target == LISTx->Tail )
+        {
+            LISTx->Tail = New;
+        }
     }
     while ( 0 );
 
@@ -345,22 +353,15 @@ LIST_Status_t LIST_PushBefore( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t *
 
     do
     {
-        if ( LISTx == NULL || Node == NULL || New == NULL )
+        if ( LISTx == NULL || Node == NULL || New == NULL || Node == New )
         {
             Status = LIST_Status_ArgumentInvalid;
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
+        if ( LIST_Remove( LISTx, New ) == LIST_Status_Success )
         {
-            Status = LIST_Status_Error;
-            break;
-        }
-
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Head == NULL ) )
-        {
-            Status = LIST_Status_Empty;
-            break;
+            // @note New was already in the list and has been removed to be pushed into the right place
         }
 
         LIST_Node_t * Target = LISTx->Head;
@@ -379,6 +380,11 @@ LIST_Status_t LIST_PushBefore( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t *
         New->Previous = Target->Previous;
 
         Target->Previous = New;
+
+        if ( Target == LISTx->Head )
+        {
+            LISTx->Head = New;
+        }
     }
     while ( 0 );
 
@@ -397,13 +403,7 @@ LIST_Status_t LIST_Remove( LIST_t * LISTx, LIST_Node_t * Node )
             break;
         }
 
-        if ( ( LISTx->Head != LISTx->Tail ) && ( ( LISTx->Head == NULL ) || ( LISTx->Tail == NULL ) ) )
-        {
-            Status = LIST_Status_Error;
-            break;
-        }
-
-        if ( ( LISTx->Head == LISTx->Tail ) && ( LISTx->Head == NULL ) )
+        if ( LIST_IsEmpty( LISTx ) == LIST_Status_Success )
         {
             Status = LIST_Status_Empty;
             break;
@@ -552,7 +552,7 @@ LIST_Status_t LIST_PeekPrevious( LIST_t * LISTx, LIST_Node_t * Node, LIST_Node_t
 // #### Public Variable(s) #####################################################
 // #############################################################################
 
-const char LIST_VERSION[] = "0.0.0.v20261024-1438";
+const char LIST_VERSION[] = "0.0.0.v20261026-0152";
 
 // #############################################################################
 // #### File Guard #############################################################
